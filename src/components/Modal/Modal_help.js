@@ -1,12 +1,12 @@
-//basiclightbox.electerious.com/
 import React, { Component } from "react";
-import styles from "./Modal.module.css";
 import { createPortal } from "react-dom";
+import styles from "./Modal.module.css";
 
 const modalRoot = document.querySelector("#modal-root");
 
 export default class Modal extends Component {
   componentDidMount() {
+    console.log("Modal componentDidMount");
     window.addEventListener("keydown", this.handleKeyDown);
   }
 
@@ -30,12 +30,12 @@ export default class Modal extends Component {
   };
 
   render() {
-    const { src, alt } = this.props;
     return createPortal(
-      <div className={styles.Overlay} onClick={this.handleBackdropClick}>
-        <div className={styles.Modal}>
-          <img src={src} alt={alt} />
-        </div>
+      <div
+        className={styles.Modal__backdrop}
+        onClick={this.handleBackdropClick}
+      >
+        <div className={styles.Modal__content}>{this.props.children}</div>
       </div>,
       modalRoot
     );
