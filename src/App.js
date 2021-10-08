@@ -1,6 +1,6 @@
 import "./App.css";
-import { Component } from "react";
-import imageGallery from "./components/ImageGallery/ImageGallery";
+import React, { Component } from "react";
+import ImageGallery from "./components/ImageGallery/ImageGallery";
 import Searchbar from "./components/Searchbar/Searchbar";
 
 export default class App extends Component {
@@ -8,11 +8,16 @@ export default class App extends Component {
     searchRequest: "",
   };
 
-  handleInputSubmit = (searchRequest) => {
-    this.setState({ searchRequest: searchRequest });
+  handleInputSubmit = (userInput) => {
+    this.setState({ searchRequest: userInput });
   };
 
   render() {
-    return <Searchbar onSubmit={this.handleInputSubmit} />;
+    return (
+      <div>
+        <Searchbar onSubmit={this.handleInputSubmit} />
+        <ImageGallery searchRequest={this.state.searchRequest} />
+      </div>
+    );
   }
 }
