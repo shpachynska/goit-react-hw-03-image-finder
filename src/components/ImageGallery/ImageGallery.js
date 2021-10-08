@@ -8,36 +8,43 @@ export default class ImageGallery extends Component {
     images: null,
     page: 1,
     status: "idle",
+    error: null,
   };
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevProps.searchRequest !== this.props.searchRequest) {
+    const { searchRequest } = this.props;
+    const { page } = this.state;
+    if (prevProps.searchRequest !== searchRequest) {
       this.setState({ status: "pending" });
       fetch(
-        `https://pixabay.com/api/?q=${this.props.searchRequest}&page=${this.state.page}&key=22998776-fe1d89aff15cc96b76b12cb7b&image_type=photo&orientation=horizontal&per_page=12`
+        `https://pixabay.com/api/?q=${searchRequest}&page=${page}&key=22998776-fe1d89aff15cc96b76b12cb7b&image_type=photo&orientation=horizontal&per_page=12`
       )
         .then((res) => res.json())
         .then((images) =>
           this.setState({ images: images.hits, status: "resolved" })
-        );
+        )
+        .catch((error) => this.setState({ error, status: "rejected" }));
     }
   }
 
-  // getImages = () => {};
-
   render() {
-    if (this.state.status === "idle") {
+    const { status, images } = this.state;
+    if (status === "idle") {
       return <div>What are you looking for?</div>;
     }
 
-    if (this.state.status === "pending") {
+    if (status === "pending") {
       return <div>Loading...</div>;
     }
 
-    if (this.state.status === "resolved") {
+    if (status === "rejected") {
+      return alert("nothing found");
+    }
+
+    if (status === "resolved") {
       return (
         <ul className={styles.ImageGallery}>
-          {this.state.images.map((image) => (
+          {images.map((image) => (
             <ImageGalleryItem
               src={image.webformatURL}
               alt={image.tags}
