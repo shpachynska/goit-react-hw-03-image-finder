@@ -4,6 +4,7 @@ import styles from "./Searchbar.module.css";
 export default class Searchbar extends Component {
   state = {
     searchRequest: "",
+    page: 1,
   };
 
   handleInputChange = (event) => {
@@ -11,15 +12,16 @@ export default class Searchbar extends Component {
   };
 
   handleSubmit = (event) => {
+    const { searchRequest, page } = this.state;
     event.preventDefault();
 
-    if (this.state.searchRequest.trim() === "") {
+    if (searchRequest.trim() === "") {
       alert("Enter your search query!");
       return;
     }
-    this.props.onSubmit(this.state.searchRequest);
+    this.props.onSubmit(searchRequest, page);
     this.setState({ searchRequest: "" });
-    this.refs.someName.value = "";
+    event.target.reset();
   };
 
   render() {
@@ -33,11 +35,10 @@ export default class Searchbar extends Component {
           <input
             className={styles.SearchForm__input}
             type="text"
-            autocomplete="off"
-            autofocus
+            autoComplete="off"
+            autoFocus
             placeholder="Search images and photos"
             onChange={this.handleInputChange}
-            ref="someName"
           />
         </form>
       </header>

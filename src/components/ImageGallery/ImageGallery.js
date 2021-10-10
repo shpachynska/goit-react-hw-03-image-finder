@@ -21,12 +21,17 @@ export default class ImageGallery extends Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
-    const { searchRequest } = this.props;
+    const { searchRequest, pageNum } = this.props;
     const { page } = this.state;
     if (prevProps.searchRequest !== searchRequest) {
-      this.setState({ status: "pending", page: 1, loading: true });
+      this.setState({
+        status: "pending",
+        page: pageNum,
+        loading: true,
+      });
+      console.log(pageNum);
       galleryAPI
-        .fetchImages(searchRequest, page)
+        .fetchImages(searchRequest, pageNum)
         .then((images) => {
           if (images.total === 0) {
             this.setState({
@@ -98,7 +103,6 @@ export default class ImageGallery extends Component {
       page: prevState.page + 1,
     }));
   };
-
   render() {
     const { status, images, showModal, button } = this.state;
     const imgInfo = this.getImgById();
