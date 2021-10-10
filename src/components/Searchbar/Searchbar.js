@@ -1,5 +1,4 @@
 import { Component } from "react";
-import { toast } from "react-toastify";
 import styles from "./Searchbar.module.css";
 
 export default class Searchbar extends Component {
@@ -15,7 +14,7 @@ export default class Searchbar extends Component {
     event.preventDefault();
 
     if (this.state.searchRequest.trim() === "") {
-      toast.error("What are you looking for?");
+      alert("What are you looking for?");
       return;
     }
     this.props.onSubmit(this.state.searchRequest);
