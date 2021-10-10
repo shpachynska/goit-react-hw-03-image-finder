@@ -14,11 +14,12 @@ export default class Searchbar extends Component {
     event.preventDefault();
 
     if (this.state.searchRequest.trim() === "") {
-      alert("What are you looking for?");
+      alert("Enter your search query!");
       return;
     }
     this.props.onSubmit(this.state.searchRequest);
     this.setState({ searchRequest: "" });
+    this.refs.someName.value = "";
   };
 
   render() {
@@ -36,6 +37,7 @@ export default class Searchbar extends Component {
             autofocus
             placeholder="Search images and photos"
             onChange={this.handleInputChange}
+            ref="someName"
           />
         </form>
       </header>

@@ -1,11 +1,12 @@
 import React, { Component } from "react";
-// import galleryAPI from "../../services/gallery-api";
+import galleryAPI from "../../services/gallery-api";
 import styles from "./ImageGallery.module.css";
 import ImageGalleryItem from "../ImageGalleryItem/ImageGalleryItem";
 import Modal from "../Modal/Modal";
 import Loader from "react-loader-spinner";
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 import ErrorView from "../ErrorView/ErrorView";
+import Button from "../Button/Button";
 
 export default class ImageGallery extends Component {
   state = {
@@ -16,6 +17,7 @@ export default class ImageGallery extends Component {
     showModal: false,
     id: null,
     loading: false,
+    button: false,
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -23,39 +25,59 @@ export default class ImageGallery extends Component {
     const { page } = this.state;
     if (prevProps.searchRequest !== searchRequest) {
       this.setState({ status: "pending", page: 1, loading: true });
-      fetch(
-        `https://pixabay.com/api/?q=${searchRequest}&page=${page}&key=22998776-fe1d89aff15cc96b76b12cb7b&image_type=photo&orientation=horizontal&per_page=12`
-      )
-        .then((res) => res.json())
+      galleryAPI
+        .fetchImages(searchRequest, page)
         .then((images) => {
-          if (images.hits.length === 0) {
+          if (images.total === 0) {
             this.setState({
               status: "rejected",
               loading: false,
               error: "There is no such images",
             });
-          } else if (images.hits.length > 12) {
+          } else if (images.total > 12) {
             this.setState({
               status: "resolved",
               images: images.hits,
               loading: false,
+              button: true,
             });
           } else {
             this.setState({
               status: "resolved",
               images: images.hits,
               loading: false,
+              button: false,
             });
           }
         })
         .catch((error) => this.setState({ error, status: "rejected" }));
     }
+
+    if (page !== 1 && prevState.page !== page) {
+      galleryAPI
+        .fetchImages(searchRequest, page)
+        .then((images) => {
+          this.setState({
+            status: "resolved",
+            images: [...prevState.images, ...images.hits],
+            button: true,
+            loading: false,
+          });
+        })
+        .finally(this.scrollPage);
+    }
   }
+
+  scrollPage = () => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: "smooth",
+    });
+  };
 
   imgClickHandler = (id) => {
     this.setState({ id: id });
     this.toggleModal();
-    console.log(`You clicked image no. ${id}`);
   };
 
   toggleModal = () => {
@@ -71,12 +93,18 @@ export default class ImageGallery extends Component {
     }
   };
 
+  onLoadMoreClick = () => {
+    this.setState((prevState) => ({
+      page: prevState.page + 1,
+    }));
+  };
+
   render() {
-    const { status, images, showModal } = this.state;
+    const { status, images, showModal, button } = this.state;
     const imgInfo = this.getImgById();
 
     if (status === "idle") {
-      return <div>What are you looking for?</div>;
+      return <div className={styles.startLabel}>Enter your search query!</div>;
     }
 
     if (status === "pending") {
@@ -97,7 +125,7 @@ export default class ImageGallery extends Component {
 
     if (status === "resolved") {
       return (
-        <div>
+        <div className={styles.listContainer}>
           <ul className={styles.ImageGallery}>
             {images.map((image) => (
               <ImageGalleryItem
@@ -109,6 +137,7 @@ export default class ImageGallery extends Component {
               />
             ))}
           </ul>
+          {button && <Button onClick={this.onLoadMoreClick} />}
           {showModal && (
             <Modal
               onClose={this.toggleModal}
