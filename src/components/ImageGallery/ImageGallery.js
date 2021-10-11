@@ -80,8 +80,8 @@ export default class ImageGallery extends Component {
     });
   };
 
-  imgClickHandler = (id) => {
-    this.setState({ id: id });
+  imgClickHandler = (largeImageURL, tags) => {
+    this.setState({ largeImageURL, tags });
     this.toggleModal();
   };
 
@@ -91,13 +91,6 @@ export default class ImageGallery extends Component {
     }));
   };
 
-  getImgById = () => {
-    const { images, id } = this.state;
-    if (images !== null) {
-      return images.find((image) => image.id === id);
-    }
-  };
-
   onLoadMoreClick = () => {
     this.setState((prevState) => ({
       page: prevState.page + 1,
@@ -105,7 +98,6 @@ export default class ImageGallery extends Component {
   };
   render() {
     const { status, images, showModal, button } = this.state;
-    const imgInfo = this.getImgById();
 
     if (status === "idle") {
       return <div className={styles.startLabel}>Enter your search query!</div>;
@@ -137,7 +129,10 @@ export default class ImageGallery extends Component {
                 alt={image.tags}
                 key={image.id}
                 id={image.id}
-                onClick={this.imgClickHandler}
+                bigSrc={image.largeImageURL}
+                onClick={() =>
+                  this.imgClickHandler(image.largeImageURL, image.tags)
+                }
               />
             ))}
           </ul>
@@ -145,8 +140,8 @@ export default class ImageGallery extends Component {
           {showModal && (
             <Modal
               onClose={this.toggleModal}
-              src={imgInfo.largeImageURL}
-              alt={imgInfo.tags}
+              src={this.state.largeImageURL}
+              alt={this.state.tags}
             />
           )}
         </div>
